@@ -183,10 +183,15 @@ public class Main extends ApplicationAdapter {
         batch.setProjectionMatrix(viewport.getCamera().combined);
 
         batch.begin();
-
         float worldWidth = viewport.getWorldWidth();
         float worldHeight = viewport.getWorldHeight();
         batch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
+
+        if (batch.getColor().equals(Color.RED)){
+            batch.setColor(Color.WHITE);
+            batch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
+        }
+
 
         font.setColor(Color.WHITE);
         font.getData().setScale(0.08f,0.1f);
