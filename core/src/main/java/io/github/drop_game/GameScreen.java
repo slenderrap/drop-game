@@ -18,21 +18,23 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import jdk.internal.org.jline.utils.Log;
+
 public class GameScreen implements Screen {
 
-    private Drop game;
-    private SpriteBatch batch;
-    private Texture backgroundTexture, bucketTexture, dropTexture;
-    private Sound dropSound;
-    private Music music;
-    private FitViewport viewport;
-    private Sprite bucketSprite;
-    private Vector2 touchPos;
-    private Array<Sprite> dropSprites;
+    private final Drop game;
+    private final SpriteBatch batch;
+    private final Texture backgroundTexture, bucketTexture, dropTexture;
+    private final Sound dropSound;
+    private final Music music;
+    private final FitViewport viewport;
+    private final Sprite bucketSprite;
+    private final Vector2 touchPos;
+    private final Array<Sprite> dropSprites;
     private float dropTimer;
     private int score;
     private boolean gameOver = false;
-    private BitmapFont font;
+    private final BitmapFont font;
 
     Rectangle bucketRectangle;
     Rectangle dropRectangle;
@@ -76,6 +78,7 @@ public class GameScreen implements Screen {
     public void render(float delta) {
 
         if (gameOver){
+            music.stop();
             game.setScreen(new GameOver(game));
         }
         if (!gameOver){
@@ -89,7 +92,7 @@ public class GameScreen implements Screen {
     private void handleInput(){
         float speed= 4f;
         float delta = Gdx.graphics.getDeltaTime();
-
+        speed = Math.round(speed+ (0.01*delta));
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT )){
             bucketSprite.translateX(speed * delta);
         }else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
@@ -123,10 +126,27 @@ public class GameScreen implements Screen {
             dropRectangle.set(dropSprite.getX(),dropSprite.getY(),dropWidth,dropHeight);
 
             if (dropSprite.getY()< -dropSprite.getHeight()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 gameOver = true;
+
                 return;
             }
-            if (bucketRectangle.overlaps(dropRectangle)) {
+//            Log.info("y cubo " +bucketRectangle.y);
+            float hitboxWidth = bucketRectangle.width * 0.2f;  // Reducir al 60% del tamaño original
+            float hitboxX = bucketRectangle.x + (bucketRectangle.width - hitboxWidth) / 2; // Centrar
+            float hitboxHeight = bucketRectangle.height * 0.05f;
+            float hitboxY = bucketRectangle.y + (bucketRectangle.height - hitboxHeight);
+            Rectangle adjustedBucketRectangle = new Rectangle(hitboxX, hitboxY, hitboxWidth, hitboxHeight);
+
+            float hitboxWithDrop = dropRectangle.width;
+            float hitboxHeightDrop = dropRectangle.height * 0.6f;
+            Rectangle adjustedDropRectangle = new Rectangle(dropRectangle.x,dropRectangle.y,hitboxWithDrop,hitboxHeightDrop);
+
+            if (adjustedBucketRectangle.overlaps(adjustedDropRectangle)) {
                 dropSound.play();
                 dropSprites.removeIndex(i);
                 score++;
@@ -161,7 +181,10 @@ public class GameScreen implements Screen {
         batch.begin();
 
         batch.draw(backgroundTexture,0,0,viewport.getWorldWidth(),viewport.getWorldHeight());
-        font.draw(batch, "Puntuació: " +score , 10,viewport.getWorldHeight()-10);
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        font.setUseIntegerPositions(false);
+        font.draw(batch, "Score: " + score, viewport.getWorldWidth()-1.8f, viewport.getWorldHeight());
+        font.getData().setScale(0.02f);
         bucketSprite.draw(batch);
 
         for (Sprite dropSprite: dropSprites){
@@ -171,12 +194,6 @@ public class GameScreen implements Screen {
         batch.end();
     }
 
-    public void createDrop(){
-        Sprite dropSprite = new Sprite(dropTexture);
-        dropSprite.setSize(1,1);
-        dropSprite.setPosition(MathUtils.random(0,viewport.getWorldWidth()-1), viewport.getWorldHeight());
-        dropSprites.add(dropSprite);
-    }
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height,true);

@@ -12,7 +12,7 @@
       tools:ignore="UnusedAttribute"
       android:theme="@style/GdxTheme">
     <activity
-        android:name="drop_game.android.AndroidLauncher"
+        android:name="io.github.drop_game.android.AndroidLauncher"
         android:label="@string/app_name"
         android:screenOrientation="landscape"
         android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"

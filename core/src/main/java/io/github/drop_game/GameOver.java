@@ -21,19 +21,23 @@ public class GameOver implements Screen {
     @Override
     public void render(float delta) {
 
-        ScreenUtils.clear(Color.RED);
+        ScreenUtils.clear(new Color(139/255f, 0, 0,1));
 
         game.viewport.apply();
 
         game.batch.begin();
 
-        game.font.draw(game.batch, "GAME OVER",1,1.5f);
-        game.font.draw(game.batch, "Tap anywhere to play!!",1,1);
+        game.font.getData().setScale(0.05f);
+        game.font.draw(game.batch, "GAME OVER",game.viewport.getWorldWidth()/4,game.viewport.getWorldHeight()/1.5f);
+        game.font.getData().setScale(0.02f);
+        game.font.draw(game.batch, "Tap anywhere to restart!!",(game.viewport.getWorldWidth())/3,1);
         game.font.setColor(Color.YELLOW);
+
 
         game.batch.end();
         if (Gdx.input.isTouched()){
             game.setScreen(new GameScreen(game));
+            ScreenUtils.clear(Color.BLACK);
         }
     }
 
