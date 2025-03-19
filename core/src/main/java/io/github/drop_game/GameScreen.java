@@ -1,5 +1,6 @@
 package io.github.drop_game;
 
+import com.badlogic.gdx.ApplicationLogger;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -92,7 +93,8 @@ public class GameScreen implements Screen {
     private void handleInput(){
         float speed= 4f;
         float delta = Gdx.graphics.getDeltaTime();
-        speed = Math.round(speed+ (0.01*delta));
+        speed = Math.round(speed* score);
+
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT )){
             bucketSprite.translateX(speed * delta);
         }else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
@@ -149,6 +151,7 @@ public class GameScreen implements Screen {
             if (adjustedBucketRectangle.overlaps(adjustedDropRectangle)) {
                 dropSound.play();
                 dropSprites.removeIndex(i);
+                dropTimer = score * 0.1f;
                 score++;
             }
         }
